@@ -1,0 +1,130 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="wrapper">
+  <div class="checkout container">
+
+    <header>
+      <h1>Hi, <br>Let's test a transaction</h1>
+      <p>
+        Make a test payment with Braintree using PayPal or a card
+      </p>
+    </header>
+
+    <form id="payment-form" method="post" action="/checkouts">
+      <section>
+        <label for="amount">
+          <span class="input-label">Amount</span>
+          <div class="input-wrapper amount-wrapper">
+            <input id="amount" name="amount" type="tel" min="1" placeholder="Amount" value="10" readonly>
+          </div>
+          </br>
+
+        <div class="input-wrapper">
+
+        <select name = "premium" id = "normal" >
+            <option value = "0" selected>normal 0</option>
+            <option value = "1">normal 1</option>
+            <option value = "2">normal 2</option>
+            <option value = "3">normal 3</option>
+            <option value = "4">normal 4</option>
+            <option value = "5">normal 5</option>
+         </select>
+
+
+
+
+          </div>
+
+          <div class="input-wrapper">
+
+        <select name = "premium" id = "prem" >
+            <option value = "0" selected>premium 0</option>
+            <option value = "1">premium 1</option>
+            <option value = "2">premium 2</option>
+            <option value = "3" >premium 3</option>
+            <option value = "4">premium 4</option>
+            <option value = "5">premium 5</option>
+         </select>
+
+
+
+
+          </div>
+
+
+
+        <div class="input-wrapper">
+
+        <select name = "premium" id = "top" >
+            <option value = "0" selected>top 0</option>
+            <option value = "1">top 1</option>
+            <option value = "2">top 2</option>
+            <option value = "3">top 3</option>
+            <option value = "4">top 4</option>
+            <option value = "5">top 5</option>
+         </select>
+
+
+
+
+          </div>
+
+
+        </label>
+
+        <div class="bt-drop-in-wrapper">
+          <div id="bt-dropin"></div>
+        </div>
+      </section>
+
+      <input type="hidden" id="nonce" name="payment_method_nonce" />
+      <button class="button" type="submit" id="submit-button"><span>Test Transaction</span></button>
+    </form>
+
+  </div>
+</div>
+
+<script type="text/javascript">
+alert("in here booyyy");
+
+function update(){
+  document.getElementById("amount").value =document.getElementById("normal").value*15+document.getElementById("prem").value*50+document.getElementById("top").value*100;
+
+}
+
+
+setInterval('update()', 500);
+
+
+update();
+</script>
+<script src="https://js.braintreegateway.com/web/dropin/1.31.2/js/dropin.min.js"></script>
+<script>
+  var form = document.querySelector('#payment-form');
+  var client_token = '{{ client_token }}';
+
+  braintree.dropin.create({
+    authorization: client_token,
+    container: '#bt-dropin',
+    paypal: {
+      flow: 'vault'
+    }
+  }, function (createErr, instance) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      instance.requestPaymentMethod(function (err, payload) {
+        if (err) {
+          console.log('Error', err);
+          return;
+        }
+
+        // Add the nonce to the form and submit
+        document.querySelector('#nonce').value = payload.nonce;
+        form.submit();
+      });
+    });
+  });
+</script>
+{% endblock %}
